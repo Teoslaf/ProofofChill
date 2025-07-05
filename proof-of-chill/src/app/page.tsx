@@ -4,9 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   MiniKit,
-  VerifyCommandInput,
-  VerificationLevel,
-  ISuccessResult,
+  WalletAuthInput,
+  IWalletAuthSuccessResult,
 } from '@worldcoin/minikit-js'
 
 export default function LandingPage() {
@@ -14,56 +13,69 @@ export default function LandingPage() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    const isVerified = localStorage.getItem('worldID_verified') === 'true'
+    const stored = localStorage.getItem('wallet_verified')
+    let isVerified = false
+
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        const now = Math.floor(Date.now() / 1000)
+        isVerified = parsed.verified === true && parsed.expires > now
+      } catch (e) {
+        isVerified = false
+      }
+    }
+
     if (isVerified) {
       router.push('/home')
     }
   }, [router])
 
-  const handleVerify = async () => {
+  const handleWalletAuth = async () => {
     if (!MiniKit.isInstalled()) {
       alert('World App not detected. Please open this app inside World App.')
       return
     }
 
-    const verifyPayload: VerifyCommandInput = {
-      action: 'hangout', // Make sure this matches your registered action ID
-      verification_level: VerificationLevel.Orb,
-    }
-
     try {
-      const { finalPayload } = await MiniKit.commandsAsync.verify(verifyPayload)
-      setMessage(JSON.stringify(finalPayload))
+      const res = await fetch('/api/nonce')
+      const { nonce } = await res.json()
+
+      const { finalPayload } = await MiniKit.commandsAsync.walletAuth({
+        nonce,
+        statement: 'Log in to Hangouts',
+      })
+
       if (finalPayload.status === 'error') {
-        console.error('❌ Verification error:', finalPayload)
-        alert('Verification failed or was cancelled.')
+        console.error('❌ Wallet Auth error:', finalPayload)
+        alert('Authentication failed or was cancelled.')
         return
       }
 
-      // Send result to your backend
-      const verifyResponse = await fetch('/api/verify', {
+      const response = await fetch('/api/complete-siwe', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          payload: finalPayload as ISuccessResult,
-          action: 'hangout',
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload: finalPayload, nonce }),
       })
 
-      const verifyJson = await verifyResponse.json()
-
-      if (verifyJson?.status == 200) {
-        setMessage("Verified")
-        localStorage.setItem('worldID_verified', 'true')
+      const result = await response.json()
+      if (result.status === 'success' && result.isValid) {
+        localStorage.setItem(
+          'wallet_verified',
+          JSON.stringify({
+            verified: true,
+            expires: Math.floor(Date.now() / 1000) + 3600,// 1hr validity
+            address: result.address
+          })
+        )
+        setMessage(result.address)
         router.push('/home')
       } else {
-        alert('Verification backend rejected the proof.')
+        alert('Authentication backend rejected the proof.')
       }
     } catch (err) {
-      console.error('🛑 Unexpected error:', err)
-      alert('Something went wrong during verification.')
+      console.error('🛑 Error during wallet auth:', err)
+      alert('Unexpected error occurred.')
     }
   }
 
@@ -78,10 +90,10 @@ export default function LandingPage() {
         </p>
 
         <button
-          onClick={handleVerify}
+          onClick={handleWalletAuth}
           className="font-pixel bg-primary text-white text-xl px-6 py-3 border-2 border-black rounded-pixel shadow-pixel hover:translate-y-1 transition-all"
         >
-          Sign in with World ID
+          Sign in with Ethereum Wallet
         </button>
       </div>
       <div className="bg-yellow-300 text-black font-mono text-sm p-2 border-2 border-black rounded mt-4">

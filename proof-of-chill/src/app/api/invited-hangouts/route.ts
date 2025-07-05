@@ -1,0 +1,104 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { ethers } from 'ethers'
+import abi from '@/app/abi/abi.json'
+
+const CONTRACT_ADDRESS = '0x98D36c698b6305e1f15be3A6aa333D5bDcD3e18E'
+const RPC_URL = 'https://worldchain-mainnet.g.alchemy.com/public'
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const address = searchParams.get('address')
+
+  if (!address || !ethers.isAddress(address)) {
+    return NextResponse.json({ error: 'Missing or invalid address' }, { status: 400 })
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(RPC_URL, {
+      name: 'worldchain',
+      chainId: 480,
+    })
+
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider)
+    const now = Math.floor(Date.now() / 1000)
+
+    // Fetch invited hangouts
+    const [
+      invitedIds,
+      invitedNames,
+      invitedCreators,
+      invitedWrdAmounts,
+      invitedStartTimes,
+      invitedEndTimes,
+      invitedIsClosed,
+      invitedParticipantCounts,
+    ] = await contract.getUserInvitedHangoutsDetails(address)
+
+    const invited = invitedIds.map((id: any, i: number) => ({
+      id: id.toString(),
+      title: invitedNames[i],
+      status: 'invited',
+      timestamp: `Starts at ${new Date(Number(invitedStartTimes[i]) * 1000).toLocaleString()}`,
+      stake: `${ethers.formatEther(invitedWrdAmounts[i])} WRD`,
+      participants: Number(invitedParticipantCounts[i]),
+    }))
+
+    // Fetch participated hangouts
+    const [
+      partIds,
+      partNames,
+      partCreators,
+      partWrdAmounts,
+      partStartTimes,
+      partEndTimes,
+      partIsClosed,
+      partParticipantCounts,
+    ] = await contract.getUserParticipatedHangoutsDetails(address)
+
+    const active: any[] = []
+    const past: any[] = []
+
+    partIds.forEach((id: any, i: number) => {
+      const start = Number(partStartTimes[i])
+      const end = Number(partEndTimes[i])
+      const isClosed = partIsClosed[i]
+
+      const baseData = {
+        id: id.toString(),
+        title: partNames[i],
+        stake: `${ethers.formatEther(invitedWrdAmounts[i])} WRD`,
+        stakeAmount: Number(ethers.formatEther(invitedWrdAmounts[i])),
+        participants: Number(partParticipantCounts[i]),
+      }
+
+      if (isClosed || now > end) {
+        past.push({
+          ...baseData,
+          status: 'completed',
+          timestamp: `Ended at ${new Date(end * 1000).toLocaleString()}`,
+        })
+      } else if (now < start) {
+        active.push({
+          ...baseData,
+          status: 'active',
+          timestamp: `Starts at ${new Date(start * 1000).toLocaleString()}`,
+        })
+      } else {
+        active.push({
+          ...baseData,
+          status: 'active',
+          timestamp: 'Ongoing',
+        })
+      }
+    })
+
+    return NextResponse.json({
+      invited,
+      active,
+      past,
+    })
+  } catch (error: any) {
+    console.error('Error reading contract:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}

@@ -23,11 +23,13 @@ export default function CreateHangoutPage() {
       const startTime = Math.floor(new Date(time).getTime() / 1000)
       const durationSeconds = parseInt(duration, 10) * 60
       const endTime = startTime + durationSeconds
+      const contractAddress = '0x98D36c698b6305e1f15be3A6aa333D5bDcD3e18E'
+      setMessage(contractAddress)
 
       const { commandPayload, finalPayload } = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
-            address: process.env.CONTRACT_ADDRESS as string,
+            address: contractAddress,
             abi: abi,
             functionName: 'createHangout',
             args: [title, wrdAmount, startTime, endTime],
@@ -36,7 +38,7 @@ export default function CreateHangoutPage() {
       })
 
       setMessage(JSON.stringify(finalPayload))
-      router.push('/home')
+    //   router.push('/home')
     } catch (error) {
       setMessage(JSON.stringify(error))
       console.error('❌ Transaction failed:', error)
