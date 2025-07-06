@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
 import abi from '@/app/abi/abi.json'
 
-const CONTRACT_ADDRESS = '0x98D36c698b6305e1f15be3A6aa333D5bDcD3e18E'
+const CONTRACT_ADDRESS = '0xB11746F70BA49Ac99E2b8242CFf5E07f22690e3F'
 const RPC_URL = 'https://worldchain-mainnet.g.alchemy.com/public'
 
 export async function GET(req: NextRequest) {
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider)
     const now = Math.floor(Date.now() / 1000)
 
-    // Fetch invited hangouts
+    // Invited Hangouts
     const [
       invitedIds,
       invitedNames,
@@ -37,13 +37,15 @@ export async function GET(req: NextRequest) {
     const invited = invitedIds.map((id: any, i: number) => ({
       id: id.toString(),
       title: invitedNames[i],
+      creator: invitedCreators[i],
       status: 'invited',
       timestamp: `Starts at ${new Date(Number(invitedStartTimes[i]) * 1000).toLocaleString()}`,
       stake: `${ethers.formatEther(invitedWrdAmounts[i])} WRD`,
+      stakeAmount: Number(ethers.formatEther(invitedWrdAmounts[i])),
       participants: Number(invitedParticipantCounts[i]),
     }))
 
-    // Fetch participated hangouts
+    // Participated Hangouts
     const [
       partIds,
       partNames,
@@ -66,8 +68,9 @@ export async function GET(req: NextRequest) {
       const baseData = {
         id: id.toString(),
         title: partNames[i],
-        stake: `${ethers.formatEther(invitedWrdAmounts[i])} WRD`,
-        stakeAmount: Number(ethers.formatEther(invitedWrdAmounts[i])),
+        creator: partCreators[i],
+        stake: `${ethers.formatEther(partWrdAmounts[i])} WRD`,
+        stakeAmount: Number(ethers.formatEther(partWrdAmounts[i])),
         participants: Number(partParticipantCounts[i]),
       }
 

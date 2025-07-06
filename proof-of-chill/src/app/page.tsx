@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import {
   MiniKit,
   WalletAuthInput,
-  IWalletAuthSuccessResult,
 } from '@worldcoin/minikit-js'
 
 export default function LandingPage() {
@@ -80,24 +79,21 @@ export default function LandingPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-bg px-4">
-      <div className="text-center space-y-6 max-w-md w-full">
+    <main className="min-h-screen flex items-center justify-center bg-bg px-4 py-8">
+      <div className="text-center space-y-8 max-w-md w-full">
         <h1 className="text-4xl font-pixel text-primary shadow-pixel">
           👾 Hangouts
         </h1>
         <p className="text-text-light text-xl font-pixel">
-          Stay chill. Stake ETH. No phones.
+          Stay social or pay the price
         </p>
 
         <button
           onClick={handleWalletAuth}
-          className="font-pixel bg-primary text-white text-xl px-6 py-3 border-2 border-black rounded-pixel shadow-pixel hover:translate-y-1 transition-all"
+          className="btn-primary btn-lg btn-full btn-icon"
         >
-          Sign in with Ethereum Wallet
+          👛 Sign in with Wallet
         </button>
-      </div>
-      <div className="bg-yellow-300 text-black font-mono text-sm p-2 border-2 border-black rounded mt-4">
-        DEBUG: {message}
       </div>
     </main>
   )

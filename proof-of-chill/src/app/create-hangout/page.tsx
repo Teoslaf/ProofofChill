@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { MiniKit } from '@worldcoin/minikit-js'
+import { parseUnits } from 'ethers'
 import abi from '@/app/abi/abi.json'
 
 export default function CreateHangoutPage() {
@@ -19,14 +20,15 @@ export default function CreateHangoutPage() {
     setLoading(true)
 
     try {
-      const wrdAmount = BigInt(parseFloat(stake) * 1e18)
+      const normalizedStake = stake.replace(',', '.') // ✅ allow comma input
+      const wrdAmount = parseUnits(normalizedStake, 18)
       const startTime = Math.floor(new Date(time).getTime() / 1000)
       const durationSeconds = parseInt(duration, 10) * 60
       const endTime = startTime + durationSeconds
-      const contractAddress = '0x98D36c698b6305e1f15be3A6aa333D5bDcD3e18E'
-      setMessage(contractAddress)
 
-      const { commandPayload, finalPayload } = await MiniKit.commandsAsync.sendTransaction({
+      const contractAddress = '0xB11746F70BA49Ac99E2b8242CFf5E07f22690e3F'
+
+      const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: contractAddress,
@@ -37,72 +39,77 @@ export default function CreateHangoutPage() {
         ],
       })
 
-      setMessage(JSON.stringify(finalPayload))
-    //   router.push('/home')
-    } catch (error) {
-      setMessage(JSON.stringify(error))
+      setMessage(`✅ Submitted: ${JSON.stringify(finalPayload)}`)
+      router.push('/home')
+    } catch (error: any) {
       console.error('❌ Transaction failed:', error)
+      setMessage(`❌ Error: ${error.message || JSON.stringify(error)}`)
       alert('Transaction failed. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
+
   return (
-    <main className="min-h-screen bg-bg p-4 text-text-main font-pixel">
-      <h1 className="text-2xl text-primary mb-4">🎉 Create a New Hangout</h1>
+    <main className="min-h-screen flex items-center justify-center bg-bg p-6 text-text-main font-pixel">
+      <div className="w-full max-w-lg">
+        <h1 className="text-3xl text-primary mb-8 text-center">🎉 Create a New Hangout</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-        <div>
-          <label className="block mb-1 text-sm">Hangout Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full p-2 border-2 border-black rounded-pixel text-base"
-          />
-        </div>
+                        <form onSubmit={handleSubmit} className="space-y-12 w-full">
+          <div className="space-y-3">
+            <label className="block text-sm font-pixel text-text-main text-center">Hangout Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full p-4 border-2 border-black rounded-pixel text-base font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-center"
+              placeholder="Enter hangout title..."
+            />
+          </div>
 
-        <div>
-          <label className="block mb-1 text-sm">Stake (WRD)</label>
-          <input
-            type="number"
-            inputMode="decimal"
-            value={stake}
-            onChange={(e) => setStake(e.target.value)}
-            required
-            className="w-full p-2 border-2 border-black rounded-pixel text-base"
-          />
-        </div>
+          <div className="space-y-3">
+            <label className="block text-sm font-pixel text-text-main text-center">Stake (WRD)</label>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={stake}
+              onChange={(e) => setStake(e.target.value)}
+              required
+              placeholder="e.g. 0.01"
+              className="w-full p-4 border-2 border-black rounded-pixel text-base font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-center"
+            />
+          </div>
 
-        <div>
-          <label className="block mb-1 text-sm">Start Time</label>
-          <input
-            type="datetime-local"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            required
-            className="w-full p-2 border-2 border-black rounded-pixel text-base"
-          />
-        </div>
+          <div className="space-y-3">
+            <label className="block text-sm font-pixel text-text-main text-center">Start Time</label>
+            <input
+              type="datetime-local"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              required
+              className="w-full p-4 border-2 border-black rounded-pixel text-base font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-center"
+            />
+          </div>
 
-        <div>
-          <label className="block mb-1 text-sm">Duration (minutes)</label>
-          <input
-            type="number"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            required
-            className="w-full p-2 border-2 border-black rounded-pixel text-base"
-          />
-        </div>
+          <div className="space-y-3">
+            <label className="block text-sm font-pixel text-text-main text-center">Duration (minutes)</label>
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              required
+              placeholder="e.g. 30"
+              className="w-full p-4 border-2 border-black rounded-pixel text-base font-pixel bg-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 text-center"
+            />
+          </div>
 
-        <div className="flex justify-between">
+        <div className="flex flex-row gap-4 mt-[20px]">
           <button
             onClick={() => router.back()}
             type="button"
-            className="bg-secondary text-white px-4 py-2 border-2 border-black rounded-pixel shadow-pixel text-sm"
+            className="btn-secondary btn-lg flex-1"
           >
             ← Back
           </button>
@@ -110,15 +117,16 @@ export default function CreateHangoutPage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-primary text-white px-4 py-2 border-2 border-black rounded-pixel shadow-pixel text-sm"
+            className={`btn-primary btn-lg flex-1 ${loading ? 'btn-loading' : ''}`}
           >
             {loading ? '⏳ Creating...' : '✅ Create Hangout'}
           </button>
         </div>
       </form>
 
-      <div className="bg-yellow-300 text-black font-mono text-sm p-2 border-2 border-black rounded mt-4">
-        DEBUG: {message}
+        <div className="bg-yellow-300 text-black font-mono text-sm p-3 border-2 border-black rounded-pixel mt-8 text-center">
+          DEBUG: {message}
+        </div>
       </div>
     </main>
   )

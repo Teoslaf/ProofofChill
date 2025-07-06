@@ -12,6 +12,7 @@
     "@worldcoin/idkit": "^2.2.2",
     "@worldcoin/minikit-js": "^1.9.6",
     "ethers": "^6.15.0",
+    "jose": "^6.0.11",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
