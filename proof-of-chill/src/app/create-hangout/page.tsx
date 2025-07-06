@@ -123,10 +123,6 @@ export default function CreateHangoutPage() {
           </button>
         </div>
       </form>
-
-        <div className="bg-yellow-300 text-black font-mono text-sm p-3 border-2 border-black rounded-pixel mt-8 text-center">
-          DEBUG: {message}
-        </div>
       </div>
     </main>
   )

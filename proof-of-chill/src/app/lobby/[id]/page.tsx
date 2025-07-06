@@ -200,12 +200,6 @@ export default function LobbyPage() {
             {loading ? '⏳ Loading...' : 'Hangout not found.'}
           </p>
         )}
-
-        {message && (
-          <div className="bg-yellow-300 text-black font-mono text-sm p-2 border-2 border-black rounded mt-4 text-center">
-            DEBUG: {message}
-          </div>
-        )}
       </div>
     </main>
   )

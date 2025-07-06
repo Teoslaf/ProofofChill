@@ -39,7 +39,14 @@ export async function GET(req: NextRequest) {
       title: invitedNames[i],
       creator: invitedCreators[i],
       status: 'invited',
-      timestamp: `Starts at ${new Date(Number(invitedStartTimes[i]) * 1000).toLocaleString()}`,
+      timestamp: `Starts at ${new Date(Number(invitedStartTimes[i]) * 1000).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      })}`,
       stake: `${ethers.formatEther(invitedWrdAmounts[i])} WRD`,
       stakeAmount: Number(ethers.formatEther(invitedWrdAmounts[i])),
       participants: Number(invitedParticipantCounts[i]),
@@ -78,13 +85,27 @@ export async function GET(req: NextRequest) {
         past.push({
           ...baseData,
           status: 'completed',
-          timestamp: `Ended at ${new Date(end * 1000).toDateString()}`,
+          timestamp: `Ended at ${new Date(end * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          })}`,
         })
       } else if (now < start) {
         active.push({
           ...baseData,
           status: 'active',
-          timestamp: `Starts at ${new Date(start * 1000).toDateString()}`,
+          timestamp: `Starts at ${new Date(start * 1000).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          })}`,
         })
       } else {
         active.push({

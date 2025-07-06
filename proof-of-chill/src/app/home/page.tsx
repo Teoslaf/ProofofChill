@@ -224,7 +224,7 @@ export default function HomePage() {
         </section>
 
         <div className="bg-yellow-300 text-black font-mono text-sm p-2 border-2 border-black rounded mt-4 text-center">
-          {loading ? '⏳ Loading hangouts...' : `DEBUG: ${message}`}
+          {loading ? '⏳ Loading hangouts...' : ''}
         </div>
       </div>
     </main>
