@@ -84,7 +84,7 @@ export default function HomePage() {
 
       const payPayload: PayCommandInput = {
         reference,
-        to: '0xB11746F70BA49Ac99E2b8242CFf5E07f22690e3F',
+        to: '0x1aeD17F70c778b889d8C09200Eb3E9da76779AA8',
         tokens: [
           {
             symbol: Tokens.WLD,
@@ -117,7 +117,7 @@ export default function HomePage() {
           await MiniKit.commandsAsync.sendTransaction({
             transaction: [
               {
-                address: '0xB11746F70BA49Ac99E2b8242CFf5E07f22690e3F',
+                address: '0x1aeD17F70c778b889d8C09200Eb3E9da76779AA8',
                 abi,
                 functionName: 'joinHangout',
                 args: [hangoutId, amountBigInt],

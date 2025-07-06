@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
 import abi from '@/app/abi/abi.json'
 
-const CONTRACT_ADDRESS = '0xB11746F70BA49Ac99E2b8242CFf5E07f22690e3F'
+const CONTRACT_ADDRESS = '0x1aeD17F70c778b889d8C09200Eb3E9da76779AA8'
 const RPC_URL = 'https://worldchain-mainnet.g.alchemy.com/public'
 
 export async function GET(req: NextRequest) {
@@ -74,17 +74,17 @@ export async function GET(req: NextRequest) {
         participants: Number(partParticipantCounts[i]),
       }
 
-      if (isClosed || now > end) {
+      if (isClosed && now > end) {
         past.push({
           ...baseData,
           status: 'completed',
-          timestamp: `Ended at ${new Date(end * 1000).toLocaleString()}`,
+          timestamp: `Ended at ${new Date(end * 1000).toDateString()}`,
         })
       } else if (now < start) {
         active.push({
           ...baseData,
           status: 'active',
-          timestamp: `Starts at ${new Date(start * 1000).toLocaleString()}`,
+          timestamp: `Starts at ${new Date(start * 1000).toDateString()}`,
         })
       } else {
         active.push({

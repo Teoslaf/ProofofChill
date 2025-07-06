@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ethers } from 'ethers'
 import abi from '@/app/abi/abi.json'
 
-const CONTRACT_ADDRESS = '0xB11746F70BA49Ac99E2b8242CFf5E07f22690e3F'
+const CONTRACT_ADDRESS = '0x1aeD17F70c778b889d8C09200Eb3E9da76779AA8'
 const RPC_URL = 'https://worldchain-mainnet.g.alchemy.com/public'
 
 export async function GET(req: NextRequest) {
