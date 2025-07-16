@@ -29,11 +29,13 @@ export async function GET(req: NextRequest) {
       invitedCreators,
       invitedWrdAmounts,
       invitedStartTimes,
+	  // eslint-disable-next-line @typescript-eslint/no-unused-vars
       invitedEndTimes,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
       invitedIsClosed,
       invitedParticipantCounts,
     ] = await contract.getUserInvitedHangoutsDetails(address)
-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const invited = invitedIds.map((id: any, i: number) => ({
       id: id.toString(),
       title: invitedNames[i],
@@ -63,10 +65,11 @@ export async function GET(req: NextRequest) {
       partIsClosed,
       partParticipantCounts,
     ] = await contract.getUserParticipatedHangoutsDetails(address)
-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const active: any[] = []
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const past: any[] = []
-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     partIds.forEach((id: any, i: number) => {
       const start = Number(partStartTimes[i])
       const end = Number(partEndTimes[i])
@@ -121,6 +124,7 @@ export async function GET(req: NextRequest) {
       active,
       past,
     })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('Error reading contract:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })

@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(hangout)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error('Error fetching hangout details:', err)
     return NextResponse.json({ error: 'Failed to fetch hangout details' }, { status: 500 })

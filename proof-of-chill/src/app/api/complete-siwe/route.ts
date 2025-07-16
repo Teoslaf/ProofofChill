@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { isValid } = await verifySiweMessage(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       payload as any,
       nonce
     )
@@ -24,8 +25,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
         status: 'success',
         isValid,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
         address: (payload as any).result?.address || (payload as any).address
       })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return NextResponse.json({
       status: 'error',

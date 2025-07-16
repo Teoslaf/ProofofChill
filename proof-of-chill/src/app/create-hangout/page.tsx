@@ -1,64 +1,69 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { MiniKit } from '@worldcoin/minikit-js'
-import { parseUnits } from 'ethers'
-import abi from '@/app/abi/abi.json'
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { MiniKit } from "@worldcoin/minikit-js";
+import { parseUnits } from "ethers";
+import abi from "@/app/abi/abi.json";
 
 export default function CreateHangoutPage() {
-  const router = useRouter()
-  const [title, setTitle] = useState('')
-  const [stake, setStake] = useState('')
-  const [time, setTime] = useState('')
-  const [duration, setDuration] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [stake, setStake] = useState("");
+  const [time, setTime] = useState("");
+  const [duration, setDuration] = useState("");
+  const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const normalizedStake = stake.replace(',', '.') // ✅ allow comma input
-      const wrdAmount = parseUnits(normalizedStake, 18)
-      const startTime = Math.floor(new Date(time).getTime() / 1000)
-      const durationSeconds = parseInt(duration, 10) * 60
-      const endTime = startTime + durationSeconds
+      const normalizedStake = stake.replace(",", "."); // ✅ allow comma input
+      const wrdAmount = parseUnits(normalizedStake, 18);
+      const startTime = Math.floor(new Date(time).getTime() / 1000);
+      const durationSeconds = parseInt(duration, 10) * 60;
+      const endTime = startTime + durationSeconds;
 
-      const contractAddress = '0x1aeD17F70c778b889d8C09200Eb3E9da76779AA8'
+      const contractAddress = "0x1aeD17F70c778b889d8C09200Eb3E9da76779AA8";
 
       const { finalPayload } = await MiniKit.commandsAsync.sendTransaction({
         transaction: [
           {
             address: contractAddress,
             abi: abi,
-            functionName: 'createHangout',
+            functionName: "createHangout",
             args: [title, wrdAmount, startTime, endTime],
           },
         ],
-      })
+      });
 
-      setMessage(`✅ Submitted: ${JSON.stringify(finalPayload)}`)
-      router.push('/home')
+      setMessage(`✅ Submitted: ${JSON.stringify(finalPayload)}`);
+      router.push("/home");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error('❌ Transaction failed:', error)
-      setMessage(`❌ Error: ${error.message || JSON.stringify(error)}`)
-      alert('Transaction failed. Please try again.')
+      console.error("❌ Transaction failed:", error);
+      setMessage(`❌ Error: ${error.message || JSON.stringify(error)}`);
+      alert("Transaction failed. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-bg p-6 text-text-main font-pixel">
       <div className="w-full max-w-lg">
-        <h1 className="text-3xl text-primary mb-8 text-center">🎉 Create a New Hangout</h1>
+        <h1 className="text-3xl text-primary mb-8 text-center">
+          🎉 Create a New Hangout
+        </h1>
 
-                        <form onSubmit={handleSubmit} className="space-y-12 w-full">
+        <form onSubmit={handleSubmit} className="space-y-12 w-full">
           <div className="space-y-3">
-            <label className="block text-sm font-pixel text-text-main text-center">Hangout Title</label>
+            <label className="block text-sm font-pixel text-text-main text-center">
+              Hangout Title
+            </label>
             <input
               type="text"
               value={title}
@@ -70,7 +75,9 @@ export default function CreateHangoutPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-pixel text-text-main text-center">Stake (WRD)</label>
+            <label className="block text-sm font-pixel text-text-main text-center">
+              Stake (WRD)
+            </label>
             <input
               type="text"
               inputMode="decimal"
@@ -83,7 +90,9 @@ export default function CreateHangoutPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-pixel text-text-main text-center">Start Time</label>
+            <label className="block text-sm font-pixel text-text-main text-center">
+              Start Time
+            </label>
             <input
               type="datetime-local"
               value={time}
@@ -94,7 +103,9 @@ export default function CreateHangoutPage() {
           </div>
 
           <div className="space-y-3">
-            <label className="block text-sm font-pixel text-text-main text-center">Duration (minutes)</label>
+            <label className="block text-sm font-pixel text-text-main text-center">
+              Duration (minutes)
+            </label>
             <input
               type="number"
               value={duration}
@@ -105,25 +116,27 @@ export default function CreateHangoutPage() {
             />
           </div>
 
-        <div className="flex flex-row gap-4 mt-[20px]">
-          <button
-            onClick={() => router.back()}
-            type="button"
-            className="btn-secondary btn-lg flex-1"
-          >
-            ← Back
-          </button>
+          <div className="flex flex-row gap-4 mt-[20px]">
+            <button
+              onClick={() => router.back()}
+              type="button"
+              className="btn-secondary btn-lg flex-1"
+            >
+              ← Back
+            </button>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`btn-primary btn-lg flex-1 ${loading ? 'btn-loading' : ''}`}
-          >
-            {loading ? '⏳ Creating...' : '✅ Create Hangout'}
-          </button>
-        </div>
-      </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`btn-primary btn-lg flex-1 ${
+                loading ? "btn-loading" : ""
+              }`}
+            >
+              {loading ? "⏳ Creating..." : "✅ Create Hangout"}
+            </button>
+          </div>
+        </form>
       </div>
     </main>
-  )
+  );
 }
